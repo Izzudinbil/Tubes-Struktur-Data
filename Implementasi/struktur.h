@@ -31,6 +31,7 @@ void tambahLagu(DoublyLinkedList& list, string id, string judul, string penyanyi
 void tampilkanSemuaLagu(const DoublyLinkedList& list);
 Lagu* cariLaguByID(const DoublyLinkedList& list, string idLagu);
 Lagu* cariLaguByJudul(const DoublyLinkedList& list, string judul);
+Lagu* cariLaguByJudulSimilarity(const DoublyLinkedList& list, string judul);
 void cariLaguByPenyanyi(const DoublyLinkedList& list, string penyanyi);
 void updateLagu(DoublyLinkedList& list, string idLagu, string newJudul, string newPenyanyi, string newGenre, int newTahun);
 void hapusLagu(DoublyLinkedList& list, string idLagu);

@@ -1,4 +1,31 @@
 #include "struktur.h"
+#include <algorithm> 
+#include <cctype>    
+
+// Helper function for Levenshtein Distance
+int levenshteinDist(string s1, string s2) {
+    int m = s1.length();
+    int n = s2.length();
+    
+    int dp[m + 1][n + 1];
+    
+    for (int i = 0; i <= m; i++) {
+        for (int j = 0; j <= n; j++) {
+            if (i == 0)
+                dp[i][j] = j;
+            else if (j == 0)
+                dp[i][j] = i;
+            else if (tolower(s1[i - 1]) == tolower(s2[j - 1]))
+                dp[i][j] = dp[i - 1][j - 1];
+            else
+                dp[i][j] = 1 + min(min(dp[i][j - 1],      
+                                   dp[i - 1][j]),      
+                                   dp[i - 1][j - 1]);  
+        }
+    }
+    
+    return dp[m][n];
+}
 
 // Inisialisasi DLL
 void initDLL(DoublyLinkedList& list) {
@@ -78,7 +105,7 @@ Lagu* cariLaguByID(const DoublyLinkedList& list, string idLagu) {
     return nullptr;
 }
 
-// Cari lagu berdasarkan judul
+// Cari lagu berdasarkan judul (Exact Match)
 Lagu* cariLaguByJudul(const DoublyLinkedList& list, string judul) {
     Lagu* current = list.head;
     while (current != nullptr) {
@@ -87,6 +114,37 @@ Lagu* cariLaguByJudul(const DoublyLinkedList& list, string judul) {
         }
         current = current->next;
     }
+    return nullptr;
+}
+
+// Cari lagu berdasarkan judul (Similarity / Fuzzy Search)
+Lagu* cariLaguByJudulSimilarity(const DoublyLinkedList& list, string judul) {
+    Lagu* current = list.head;
+    Lagu* bestMatch = nullptr;
+    int minDistance = 1000; // Initialize with a high value
+    
+    while (current != nullptr) {
+        int dist = levenshteinDist(judul, current->judulLagu);
+        
+        // Find the absolute minimum distance
+        if (dist < minDistance) {
+            minDistance = dist;
+            bestMatch = current;
+        }
+        
+        current = current->next;
+    }
+    
+    // Define a threshold to accept the match
+    // If best match is found, check if it's reasonable
+    // E.g., distance <= 50% of the longer string length
+    if (bestMatch != nullptr) {
+        int threshold = max((int)judul.length(), (int)bestMatch->judulLagu.length()) / 2 + 1;
+        if (minDistance <= threshold) {
+            return bestMatch;
+        }
+    }
+    
     return nullptr;
 }
 
